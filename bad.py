@@ -15,47 +15,53 @@ orders = ["cv", "vc"]
 sentences = []  # TODO
 
 # i omit duplicate phonemes like "ph", "wh", "kn", "gh"
-consonant_phonemes_i_guess = [
-    "b",
-    "c",
-    "d",
-    "f",
-    "g",
-    "h",
-    "j",
-    "k",
-    "l",
-    "m",
-    "n",
-    "p",
-    "q",
-    "r",
-    "s",
-    "t",
-    "v",
-    "w",
-    "x",
-    "y",
-    "z",
-    "ch",
-    "th",
-    "sh",
-    "zh",
-    "ng",
+
+# NOTE: the approximations are for my benefit. trust the IPA
+consonant_phonemes = [
+    # TODO: not so sucks but i have a bad feeling
+    {"ipa": "m", "aprx": "m"},
+    {"ipa": "n", "aprx": "n"},
+    {"ipa": "ŋ", "aprx": "ng"},
+    {"ipa": "p", "aprx": "p"},
+    {"ipa": "t", "aprx": "t"},
+    {"ipa": "tʃ", "aprx": "ch"},
+    {"ipa": "k", "aprx": "k"},
+    {"ipa": "b", "aprx": "b"},
+    {"ipa": "d", "aprx": "d"},
+    {"ipa": "d", "aprx": "j"},
+    {"ipa": "g", "aprx": "g"},
+    {"ipa": "f", "aprx": "f"},
+    {"ipa": "θ", "aprx": "th"},  # voiceless, "thick"
+    {"ipa": "s", "aprx": "s"},
+    {"ipa": "ʃ", "aprx": "sh"},
+    {"ipa": "x", "aprx": "🟥"},  # not in my dialect?? voiceless velar fricative
+    {"ipa": "h", "aprx": "h"},
+    {"ipa": "v", "aprx": "v"},
+    {"ipa": "ð", "aprx": "th"},  # voiced, "this"
+    {"ipa": "z", "aprx": "z"},
+    {"ipa": "ʒ", "aprx": "zh"},
+    # given approx is common in chinese loan words and names...
+    # there are tons of graphemes for it: treasure, division, azure, zsa
+    {"ipa": "l", "aprx": "l"},
+    {"ipa": "r", "aprx": "r"},
+    {"ipa": "j", "aprx": "y"},  # consonant y
+    {"ipa": "w", "aprx": "w"},
 ]
-vowel_phonemes_that_are_okay = [
-    "a",  # short a
-    "e",  # bruh
-    "i",  # short i
-    "o",
-    "u",
-    "y",  # no no no no no no no
-    "ay",  # long a, not a-e diphthong
-    "eh",  # bruh
-    "ih",  #
-    "oo",
-    "uh",  # oo ambiguity
-    "ey",
+vowel_phonemes = [  # no diphthongs at all
+    # TODO: sucks
+    {"ipa": "ɪ", "aprx": "ih"},
+    {"ipa": "i", "aprx": "ee"},
+    {"ipa": "ʊ", "aprx": "uuh"},  # flat mouth
+    {"ipa": "u", "aprx": "oo"},
+    {"ipa": "o", "aprx": "oh"},
+    {"ipa": "e̞", "aprx": "ih"},
+    {"ipa": "ɛ", "aprx": "eh"},
+    {"ipa": "ə", "aprx": "uh"},
+    {"ipa": "ɔ", "aprx": "auh"},  # not diphthong
+    {"ipa": "a", "aprx": "aw"},
+    {"ipa": "æ", "aprx": "aaa"},
+    {"ipa": "ɐ", "aprx": "ah"},
+    {"ipa": "ɑ", "aprx": "aw"},
 ]
 
 
@@ -63,32 +69,31 @@ vowel_phonemes_that_are_okay = [
 # stuff that would constitute well known neo-pronouns
 # and anything i don't like subjectively
 cblocklist = [
-    # "b",
-    "c",  # sound/spelling ambiguity
-    # "d",
-    "f",
-    "g",  # gif or gif?
-    "h",  # 'he'
-    "j",  # harsh, confuses other langs, not aesthetic
-    "k",
-    # "l",
     # "m",
     # "n",
+    # "ŋ",  #
     # "p",
-    "q",  # so bad. weird consonant.
-    "r",  # schwa-inducing, gross
+    # "t",
+    # "tʃ",
+    # "k",
+    # "b",
+    # "d",
+    # "dʒ",
+    # "g",
+    # "f",
+    # "θ",
     # "s",
-    "t",  # same as k g, harsh
+    # "ʃ",  #
+    # "x",  #
+    # "h",  #
     # "v",
+    # "ð",
+    # "z",
+    # "ʒ",  #
+    # "l",
+    # "r",
+    # "j",
     # "w",
-    "x",  # neopro
-    "y",  # sometimes ambiguous, also if somebody calls me "ye" i'll die
-    "z",  # neopro
-    "ch",
-    "th",  # "thu, uth, the, tha" all gross! only diphthong-able, as in "they"
-    "sh",  # 'she'
-    "zh",  # superior phoneme for voiced 'sh'
-    "ng",  # obviously bad but funny to include at all
 ]
 
 # these vowels don't create words that 'look' like pronouns to me
@@ -96,15 +101,6 @@ vblocklist = [
     # "a",  # short a
     # "e",  # bruh
     # "i",  # short i
-    # "o",
-    "u",  #
-    "y",  # no no no no no no no
-    "ay",  # too diphthong-y
-    # "eh",  # bruh
-    # "ih",  # too many letters to specify...
-    # "oo",
-    # "uh",  # oo ambiguity
-    "ey",  # diphthong
 ]
 
 
@@ -191,9 +187,9 @@ Taken consonants: ( front / back )
     """
     )
 
-    for vowel in vowel_phonemes_that_are_okay:
+    for vowel in vowel_phonemes:
         vblock = vowel in vblocklist
-        for con in consonant_phonemes_i_guess:
+        for con in consonant_phonemes:
             cblock = con in cblocklist
             for order in orders:
                 forms = construct_pronoun(con, vowel, order)
