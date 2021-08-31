@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # i am not a phoneticist, phonetician, phonologist, or phonographer
 # but it's funny that all these words exist
 # i'm also not a phononomist
