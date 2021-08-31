@@ -122,6 +122,21 @@ def make_possessive(pronoun: str):
     return pronoun + "s"
 
 
+def permute_pronouns_from_vowel(vowel: str):
+    permutations = []
+    for con1 in consonant_phonemes:
+        cv = f"{con1}{vowel}"
+        permutations.append({"subj": cv, "pos": make_possessive(cv)})
+        vc = f"{vowel}{con1}"
+        permutations.append({"subj": vc, "pos": make_possessive(vc)})
+        for con2 in consonant_phonemes:
+            cvc1 = f"{con1}{vowel}{con2}"
+            permutations.append({"subj": cvc1, "pos": make_possessive(cvc1)})
+            cvc2 = f"{con2}{vowel}{con1}"
+            permutations.append({"subj": cvc2, "pos": make_possessive(cvc2)})
+    return permutations
+
+
 def construct_pronoun(consonant: str, vowel: str, order: str):
     if order == "cv":
         pronoun = f"{consonant}{vowel}"
