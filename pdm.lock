@@ -1,0 +1,35 @@
+[[package]]
+name = "pyenchant"
+version = "3.2.1"
+requires_python = ">=3.5"
+summary = "Python bindings for the Enchant spellchecking system"
+
+[[package]]
+name = "pyenchant"
+version = "3.2.1"
+extras = ["en_us"]
+requires_python = ">=3.5"
+summary = "Python bindings for the Enchant spellchecking system"
+dependencies = [
+    "pyenchant==3.2.1",
+]
+
+[[package]]
+name = "termcolor"
+version = "1.1.0"
+summary = "ANSII Color formatting for output in terminal."
+
+[metadata]
+lock_version = "3"
+content_hash = "sha256:87c65fcd4d4f4bd9907b53cdc5a8494d9474499b98353ed23db7988e130102e6"
+
+[metadata.files]
+"pyenchant 3.2.1" = [
+    {file = "pyenchant-3.2.1-py3-none-any.whl", hash = "sha256:e8546c28b630f6d9f76642166656e337df2a1849cbef2b8ee198e7f64266f4ee"},
+    {file = "pyenchant-3.2.1-py3-none-win32.whl", hash = "sha256:49e0b255bef9356f57eeeee1d983ffa8599c0a46727d55cddbc71ec26226ca80"},
+    {file = "pyenchant-3.2.1-py3-none-win_amd64.whl", hash = "sha256:37c79e1dab492092fe8135222b2ba404c1b79595b459af9edaeddb77a2cb89a5"},
+    {file = "pyenchant-3.2.1.tar.gz", hash = "sha256:5e206a1d6596904a922496f6c9f7d0b964b243905f401f5f2f40ea4d1f74e2cf"},
+]
+"termcolor 1.1.0" = [
+    {file = "termcolor-1.1.0.tar.gz", hash = "sha256:1d6d69ce66211143803fbc56652b41d73b4a400a2891d7bf7a1cdf4c02de613b"},
+]

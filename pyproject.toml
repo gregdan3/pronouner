@@ -1,0 +1,24 @@
+[project]
+name = "pronouner"
+version = "1.0.0"
+description = "make pronouns, badly,"
+authors = [
+    {name = "Gregory Danielson", email = "gregory.danielson3@gmail.com"},
+]
+dependencies = [
+    "pyenchant[en_us]~=3.2",
+    "termcolor~=1.1",
+]
+requires-python = ">=3.7"
+dynamic = ["classifiers"]
+license = {text = "GPL-3.0-or-later"}
+
+[project.urls]
+homepage = ""
+
+[build-system]
+requires = ["pdm-pep517"]
+build-backend = "pdm.pep517.api"
+
+[tool]
+[tool.pdm]
