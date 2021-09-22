@@ -15,101 +15,84 @@ d = enchant.Dict("en_US")
 orders = ["cv", "vc"]
 sentences = []  # TODO
 
-# i omit duplicate phonemes like "ph", "wh", "kn", "gh"
-
+# this list comes from my other project: gregdan3/common-english-phonemes
+# these are present in >=70% of the english dialects documented in phoible
 # NOTE: the approximations are for my benefit. trust the IPA
 consonant_phonemes = [
-    # TODO: not so sucks but i have a bad feeling
-    {"ipa": "m", "aprx": "m"},
-    {"ipa": "n", "aprx": "n"},
-    {"ipa": "ŋ", "aprx": "ng"},
-    {"ipa": "p", "aprx": "p"},
-    {"ipa": "t", "aprx": "t"},
-    {"ipa": "tʃ", "aprx": "ch"},
-    {"ipa": "k", "aprx": "k"},
     {"ipa": "b", "aprx": "b"},
     {"ipa": "d", "aprx": "d"},
-    {"ipa": "d", "aprx": "j"},
-    {"ipa": "g", "aprx": "g"},
+    {"ipa": "d̠ʒ", "aprx": "j"},
     {"ipa": "f", "aprx": "f"},
-    {"ipa": "θ", "aprx": "th"},  # voiceless, "thick"
-    {"ipa": "s", "aprx": "s"},
-    {"ipa": "ʃ", "aprx": "sh"},
-    {"ipa": "x", "aprx": "🟥"},  # not in my dialect?? voiceless velar fricative
     {"ipa": "h", "aprx": "h"},
-    {"ipa": "v", "aprx": "v"},
-    {"ipa": "ð", "aprx": "th"},  # voiced, "this"
-    {"ipa": "z", "aprx": "z"},
-    {"ipa": "ʒ", "aprx": "zh"},
-    # given approx is common in chinese loan words and names...
-    # there are tons of graphemes for it: treasure, division, azure, zsa
+    {"ipa": "j", "aprx": "y"},
     {"ipa": "l", "aprx": "l"},
-    {"ipa": "r", "aprx": "r"},
-    {"ipa": "j", "aprx": "y"},  # consonant y
+    {"ipa": "m", "aprx": "m"},
+    {"ipa": "n", "aprx": "n"},
+    {"ipa": "pʰ", "aprx": "p"},
+    {"ipa": "s", "aprx": "s"},
+    {"ipa": "tʰ", "aprx": "t"},
+    {"ipa": "t̠ʃ", "aprx": "ch"},
+    {"ipa": "v", "aprx": "v"},
     {"ipa": "w", "aprx": "w"},
+    {"ipa": "z", "aprx": "z"},
+    {"ipa": "ð", "aprx": "th"},  # voiced
+    {"ipa": "ŋ", "aprx": "ng"},
+    {"ipa": "ɡ", "aprx": "g"},
+    {"ipa": "ɹ", "aprx": "r"},
+    {"ipa": "ʃ", "aprx": "sh"},
+    {"ipa": "ʒ", "aprx": "zh"},
+    {"ipa": "θ", "aprx": "th"},  # voiceless
 ]
-vowel_phonemes = [  # no diphthongs at all
-    # TODO: sucks
-    {"ipa": "ɪ", "aprx": "ih"},
-    {"ipa": "i", "aprx": "ee"},
-    {"ipa": "ʊ", "aprx": "uuh"},  # flat mouth
-    {"ipa": "u", "aprx": "oo"},
-    {"ipa": "o", "aprx": "oh"},
-    {"ipa": "e̞", "aprx": "ih"},
-    {"ipa": "ɛ", "aprx": "eh"},
+# this list comes from my other project: gregdan3/common-english-phonemes
+# these are present in >=50% of the english dialects documented in phoible
+# ... you really gotta stretch with english vowels
+vowel_phonemes = [
+    {"ipa": "iː", "aprx": "ee"},
+    {"ipa": "ɒ", "aprx": "oh"},
     {"ipa": "ə", "aprx": "uh"},
-    {"ipa": "ɔ", "aprx": "auh"},  # not diphthong
-    {"ipa": "a", "aprx": "aw"},
-    {"ipa": "æ", "aprx": "aaa"},
-    {"ipa": "ɐ", "aprx": "ah"},
-    {"ipa": "ɑ", "aprx": "aw"},
+    {"ipa": "ɛ", "aprx": "eh"},
+    {"ipa": "ɪ", "aprx": "ih"},
+    {"ipa": "ʊ", "aprx": "ouh"},
 ]
 
-
-# anything that produces existing-sounding words
-# stuff that would constitute well known neo-pronouns
-# and anything i don't like subjectively
 cblocklist = [
-    # "m",
-    # "n",
-    # "ŋ",  #
-    # "p",
-    # "t",
-    # "tʃ",
-    # "k",
     # "b",
     # "d",
-    # "dʒ",
-    # "g",
+    # "d̠ʒ",
     # "f",
-    # "θ",
-    # "s",
-    # "ʃ",  #
-    # "x",  #
-    # "h",  #
-    # "v",
-    # "ð",
-    # "z",
-    # "ʒ",  #
-    # "l",
-    # "r",
+    # "h",
     # "j",
+    # "l",
+    # "m",
+    # "n",
+    # "pʰ",
+    # "s",
+    # "tʰ",
+    # "t̠ʃ",
+    # "v",
     # "w",
+    # "z",
+    # "ð",
+    # "ŋ",
+    # "ɡ",
+    # "ɹ",
+    # "ʃ",
+    # "ʒ",
+    # "θ",
 ]
-
-# these vowels don't create words that 'look' like pronouns to me
 vblocklist = [
-    # "a",  # short a
-    # "e",  # bruh
-    # "i",  # short i
+    # "iː",
+    # "ɒ",
+    # "ə",
+    # "ɛ",
+    # "ɪ",
+    # "ʊ",
 ]
 
 
-def is_already_word(pronoun_forms: dict):
-    res = d.check(pronoun_forms["subj"]) or d.check(pronoun_forms["pos"])
-    LOG.debug(
-        "%s or %s are already words" % (pronoun_forms["subj"], pronoun_forms["pos"])
-    ) if res else None
+def is_word(pronoun_forms: dict):
+    # checking ipa is pointless here
+    res = d.check(pronoun_forms["subj_aprx"]) or d.check(pronoun_forms["pos_aprx"])
     return res
 
 
@@ -119,42 +102,45 @@ def make_possessive(pronoun: str):
     return pronoun + "s"
 
 
-def permute_pronouns_from_vowel(vowel: str):
+def construct_pronoun(ph1, ph2, ph3=None, bad: bool = False):
+    """takes in 2 or 3 phonemes
+    returns dict representation of corresponding pronoun, plus metadata"""
+    check = [ph1, ph2]
+    if ph3 is not None:
+        check.append(ph3)
+    p_ipa = ""
+    p_aprx = ""
+    for e in check:
+        p_ipa += e["ipa"]
+        p_aprx += e["aprx"]
+    constructed = {
+        "subj_ipa": p_ipa,
+        "pos_ipa": make_possessive(p_ipa),
+        "subj_aprx": p_aprx,
+        "pos_aprx": make_possessive(p_aprx),
+        "has_bad": bad,
+    }
+    constructed["is_word"] = is_word(constructed)
+    return constructed
+
+
+def permute_pronouns_from_vowel(vowel: dict, vowel_bad: bool = False):
     permutations = []
     for con1 in consonant_phonemes:
-        cv = f"{con1}{vowel}"
-        permutations.append({"subj": cv, "pos": make_possessive(cv)})
-        vc = f"{vowel}{con1}"
-        permutations.append({"subj": vc, "pos": make_possessive(vc)})
+        con1bad = (con1["ipa"] in cblocklist) or vowel_bad
+        permutations.append(construct_pronoun(con1, vowel, bad=con1bad))
+        permutations.append(construct_pronoun(vowel, con1, bad=con1bad))
         for con2 in consonant_phonemes:
-            cvc1 = f"{con1}{vowel}{con2}"
-            permutations.append({"subj": cvc1, "pos": make_possessive(cvc1)})
-            cvc2 = f"{con2}{vowel}{con1}"
-            permutations.append({"subj": cvc2, "pos": make_possessive(cvc2)})
+            # TODO: many very much pronoun too many pronoun. how to reduce?
+            con2bad = (con2["ipa"] in cblocklist) or con1bad
+            permutations.append(construct_pronoun(con1, vowel, con2, bad=con2bad))
+            permutations.append(construct_pronoun(con2, vowel, con1, bad=con2bad))
     return permutations
-
-
-def construct_pronoun(consonant: str, vowel: str, order: str):
-    if order == "cv":
-        pronoun = f"{consonant}{vowel}"
-    elif order == "vc":
-        pronoun = f"{vowel}{consonant}"
-    elif order == "cvc":
-        # TODO
-        pronoun = f""
-    elif order == "vcv":
-        # TODO:
-        pronoun = f""
-    else:
-        return {}
-    return {"subj": pronoun, "pos": make_possessive(pronoun)}
 
 
 def main():
     bad = []
     good = []
-    vblock = False
-    cblock = False
 
     print(
         """
@@ -189,24 +175,15 @@ Taken consonants: ( front / back )
     )
 
     for vowel in vowel_phonemes:
-        vblock = vowel in vblocklist
-        for con in consonant_phonemes:
-            cblock = con in cblocklist
-            for order in orders:
-                forms = construct_pronoun(con, vowel, order)
-                dont = vblock or cblock  # or is_already_word(forms)
-                color = "red" if is_already_word(forms) else "magenta"
+        vblock = vowel["ipa"] in vblocklist
+        permutations = permute_pronouns_from_vowel(vowel, vblock)
+        for forms in permutations:
+            color = "red" if forms["is_word"] else "magenta"
 
-                if dont:
-                    # toprint = colored(forms["subj"] + " ", "red")
-                    bad.append(forms)
-                    # print(toprint, end="")
-                else:
-                    toprint = colored(forms["subj"] + " ", color)
-                    good.append(forms)
-                    print(toprint, end="")
-        if vblock:
-            continue
+            toprint = colored(forms["subj_ipa"] + " ", color)
+            good.append(forms)
+            if not forms["has_bad"]:
+                print(toprint, end="")
         print()
 
     if len(good) < 20:
