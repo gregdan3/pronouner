@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # i am not a phoneticist, phonetician, phonologist, or phonographer
 # but it's funny that all these words exist
-# i'm also not a phononomist
+# i'm also not a phononomist or phonologer
 
 import logging
 
@@ -48,20 +48,26 @@ consonant_phonemes = [
 # ... you really gotta stretch with english vowels
 vowel_phonemes = [
     {"ipa": "iː", "aprx": "ee"},
-    {"ipa": "ɒ", "aprx": "oh"},
+    {"ipa": "ɒ", "aprx": "awh"},
     {"ipa": "ə", "aprx": "uh"},
     {"ipa": "ɛ", "aprx": "eh"},
     {"ipa": "ɪ", "aprx": "ih"},
-    {"ipa": "ʊ", "aprx": "ouh"},
+    {"ipa": "ʊ", "aprx": "euh"},
 ]
 
+# the default blocklist is:
+# - weirdly placed (ŋ)
+# - inconsistently written (ʒ)
+# - indistinguishable in writing (θ/ð, ɡ/d̠ʒ)
+# - already used (h, ʃ)
+# - r (ɹ)
 cblocklist = [
     # "b",
     # "d",
-    # "d̠ʒ",
+    "d̠ʒ",
     # "f",
-    # "h",
-    # "j",
+    "h",
+    "j",
     # "l",
     # "m",
     # "n",
@@ -72,21 +78,22 @@ cblocklist = [
     # "v",
     # "w",
     # "z",
-    # "ð",
-    # "ŋ",
-    # "ɡ",
-    # "ɹ",
-    # "ʃ",
-    # "ʒ",
-    # "θ",
+    "ð",
+    "ŋ",
+    "ɡ",
+    "ɹ",
+    "ʃ",
+    "ʒ",
+    "θ",
 ]
+# vowel default blocklist is lazy or dark vowels
 vblocklist = [
     # "iː",
-    # "ɒ",
-    # "ə",
+    "ɒ",
+    "ə",
     # "ɛ",
     # "ɪ",
-    # "ʊ",
+    "ʊ",
 ]
 
 
@@ -97,6 +104,7 @@ def is_word(pronoun_forms: dict):
 
 
 def make_possessive(pronoun: str):
+    # this is silly but making a unique possessive form on the fly is bad
     if pronoun[-1] == "s":
         return pronoun
     return pronoun + "s"
@@ -124,14 +132,32 @@ def construct_pronoun(ph1, ph2, ph3=None, bad: bool = False):
     return constructed
 
 
-def permute_pronouns_from_vowel(vowel: dict, vowel_bad: bool = False):
+def permute_pronouns_simple(vowel: dict, vowel_bad: bool = False):
+    """more realistic variation of pronoun generation
+    English's third person pronouns begin with a fricative
+    then end with a vowel, or a diphthong in "they"'s case
+    so generating pronouns for more cases than con+vowel is asking for trouble
+    """
+    permutations = []
+    for con1 in consonant_phonemes:
+        con1bad = (con1["ipa"] in cblocklist) or vowel_bad
+        permutations.append(construct_pronoun(con1, vowel, bad=con1bad))
+    return permutations
+
+
+def permute_pronouns_complex(vowel: dict, vowel_bad: bool = False):
+    """not recommended for use
+    potentially, generate all the pronouns that are even vaguely reasonable!
+    but a vast majority of these pronoun candidates are same-y, hard to read or
+    difficult to write.
+    """
     permutations = []
     for con1 in consonant_phonemes:
         con1bad = (con1["ipa"] in cblocklist) or vowel_bad
         permutations.append(construct_pronoun(con1, vowel, bad=con1bad))
         permutations.append(construct_pronoun(vowel, con1, bad=con1bad))
         for con2 in consonant_phonemes:
-            # TODO: many very much pronoun too many pronoun. how to reduce?
+            # NOTE: produces TOO MANY pronoun candidates
             con2bad = (con2["ipa"] in cblocklist) or con1bad
             permutations.append(construct_pronoun(con1, vowel, con2, bad=con2bad))
             permutations.append(construct_pronoun(con2, vowel, con1, bad=con2bad))
@@ -176,7 +202,7 @@ Taken consonants: ( front / back )
 
     for vowel in vowel_phonemes:
         vblock = vowel["ipa"] in vblocklist
-        permutations = permute_pronouns_from_vowel(vowel, vblock)
+        permutations = permute_pronouns_simple(vowel, vblock)
         for forms in permutations:
             color = "red" if forms["is_word"] else "magenta"
 
@@ -184,9 +210,10 @@ Taken consonants: ( front / back )
             good.append(forms)
             if not forms["has_bad"]:
                 print(toprint, end="")
-        print()
+        if not vblock:
+            print()
 
-    if len(good) < 20:
+    if len(good) < 30:
         for pronoun in good:
             for sentence in sentences:
                 print(sentence % pronoun)
