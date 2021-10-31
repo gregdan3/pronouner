@@ -179,7 +179,6 @@ def permute_pronouns_complex(vowel: dict, vowel_bad: bool = False):
 
 
 def main():
-    bad = []
     good = []
 
     for vowel in vowel_phonemes:
