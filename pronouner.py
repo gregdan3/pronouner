@@ -13,7 +13,6 @@ LOG = logging.getLogger()
 LOG.setLevel(logging.DEBUG)
 
 d = enchant.Dict("en_US")
-orders = ["cv", "vc"]
 sentences = []  # TODO
 
 # this list comes from my other project: gregdan3/common-english-phonemes
