@@ -100,7 +100,7 @@ vblocklist = set()
 # vowel recommended blocklist is lazy or dark vowels
 vblocklist_rec = {
     # "iː",
-    "ɒ",
+    # "ɒ",
     "ə",
     # "ɛ",
     # "ɪ",
