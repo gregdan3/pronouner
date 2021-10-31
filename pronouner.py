@@ -165,13 +165,16 @@ def permute_pronouns_complex(vowel: dict, vowel_bad: bool = False):
     permutations = []
     for con1 in consonant_phonemes:
         con1bad = (con1["ipa"] in cblocklist) or vowel_bad
-        permutations.append(construct_pronoun(con1, vowel, bad=con1bad))
-        permutations.append(construct_pronoun(vowel, con1, bad=con1bad))
-        for con2 in consonant_phonemes:
-            # NOTE: produces TOO MANY pronoun candidates
-            con2bad = (con2["ipa"] in cblocklist) or con1bad
-            permutations.append(construct_pronoun(con1, vowel, con2, bad=con2bad))
-            permutations.append(construct_pronoun(con2, vowel, con1, bad=con2bad))
+        if CV:
+            permutations.append(construct_pronoun(con1, vowel, bad=con1bad))
+        if VC:
+            permutations.append(construct_pronoun(vowel, con1, bad=con1bad))
+        if CVC:
+            for con2 in consonant_phonemes:
+                # NOTE: produces SO MANY pronoun candidates
+                con2bad = (con2["ipa"] in cblocklist) or con1bad
+                permutations.append(construct_pronoun(con1, vowel, con2, bad=con2bad))
+                permutations.append(construct_pronoun(con2, vowel, con1, bad=con2bad))
     return permutations
 
 
@@ -181,7 +184,7 @@ def main():
 
     for vowel in vowel_phonemes:
         vblock = vowel["ipa"] in vblocklist
-        permutations = permute_pronouns_simple(vowel, vblock)
+        permutations = permute_pronouns_complex(vowel, vblock)
         for forms in permutations:
             color = "red" if forms["is_word"] else "magenta"
 
