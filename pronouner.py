@@ -15,6 +15,11 @@ LOG.setLevel(logging.DEBUG)
 d = enchant.Dict("en_US")
 sentences = []  # TODO
 
+CV = False
+VC = False
+CVC = False
+
+
 # this list comes from my other project: gregdan3/common-english-phonemes
 # these are present in >=70% of the english dialects documented in phoible
 # NOTE: the approximations are for my benefit. trust the IPA
@@ -43,6 +48,8 @@ consonant_phonemes = [
     {"ipa": "ʒ", "aprx": "zh"},
     {"ipa": "θ", "aprx": "th"},  # voiceless
 ]
+consonants = {c["ipa"] for c in consonant_phonemes}
+
 # this list comes from my other project: gregdan3/common-english-phonemes
 # these are present in >=50% of the english dialects documented in phoible
 # ... you really gotta stretch with english vowels
@@ -54,14 +61,16 @@ vowel_phonemes = [
     {"ipa": "ɪ", "aprx": "ih"},
     {"ipa": "ʊ", "aprx": "euh"},
 ]
+vowels = {v["ipa"] for v in vowel_phonemes}
 
-# the default blocklist is:
+cblocklist = set()
+# the recommended blocklist contains:
 # - weirdly placed (ŋ)
 # - inconsistently written (ʒ)
 # - indistinguishable in writing (θ/ð, ɡ/d̠ʒ)
 # - already used (h, ʃ)
 # - r (ɹ)
-cblocklist = [
+cblocklist_rec = {
     # "b",
     # "d",
     "d̠ʒ",
@@ -85,16 +94,18 @@ cblocklist = [
     "ʃ",
     "ʒ",
     "θ",
-]
-# vowel default blocklist is lazy or dark vowels
-vblocklist = [
+}
+
+vblocklist = set()
+# vowel recommended blocklist is lazy or dark vowels
+vblocklist_rec = {
     # "iː",
     "ɒ",
     "ə",
     # "ɛ",
     # "ɪ",
     "ʊ",
-]
+}
 
 
 def is_word(pronoun_forms: dict):
@@ -168,38 +179,6 @@ def main():
     bad = []
     good = []
 
-    print(
-        """
-Already existing third person pronouns:
-sg = singular
-pl = plural
-gl = genderless
-ml = male
-fl = female
-
-           subj    obj     d. pos    i. pos      reflective?
-1st sg gl: i     / me    / my      / mine      / myself
-1st pl gl: we    / us    / our     / ours      / ourselves
-2nd sg gl: you   / you   / your    / yours     / yourself
-2nd pl gl: y'all / y'all / y'all's / y'all's   / y'allselves
-3rd sg ml: he    / him   / his     / his       / himself
-3rd sg fl: she   / her   / hers    / hers      / herself
-3rd sg gl: they  / them  / theirs  / theirs    / themself,theirself
-3rd pl gl: they  / them  / theirs  / theirs    / themselves,theirselves
-3rd sg gl: it    / it    / its     / its       / itself
-
-Taken consonants: ( front / back )
-1st: m / n
-2nd: y / r
-3rd: h sh th / t m r
-
-"Taken" vowels: (thse are okay to reuse)
-1st: i ee uh ow
-2nd: oo oh ah
-3rd: ee ih schwa ey eh ih
-    """
-    )
-
     for vowel in vowel_phonemes:
         vblock = vowel["ipa"] in vblocklist
         permutations = permute_pronouns_simple(vowel, vblock)
@@ -221,4 +200,131 @@ Taken consonants: ( front / back )
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="A pronoun constructing script."
+        "By default, only produces consonant-vowel pronoun candidates."
+    )
+    parser.add_argument(
+        "--guide",
+        dest="guide",
+        action="store_true",
+        default=False,
+        help="Show a short guide to pronouns and exit.",
+    )
+    parser.add_argument(
+        "--me",
+        "--cv",
+        dest="cv",
+        action="store_true",
+        default=True,  # NOTE
+        help="Enable consonant-vowel construction. Named after 'me.' Default.",
+    )
+    parser.add_argument(
+        "--it",
+        "--vc",
+        dest="vc",
+        action="store_true",
+        default=False,
+        help="Enable vowel-consonant construction. Named after 'it.'",
+    )
+    parser.add_argument(
+        "--they",
+        "--all",
+        dest="cvc",
+        action="store_true",
+        default=False,
+        help="Enable consonant-vowel-consonant construction. Named after 'they.'",
+    )
+    parser.add_argument(
+        "--no-blocks",
+        "--noblocks",
+        dest="no_blocks",
+        action="store_true",
+        default=False,
+        help="Disable vowel/consonant blocklists. Overrides all blocking settings.",
+    )
+    parser.add_argument(
+        "--rec-blocks",
+        "--recblocks",
+        dest="rec_blocks",
+        action="store_true",
+        default=True,  # NOTE
+        help="Enable recommended vowel/consonant blocklists. Default.",
+    )
+    parser.add_argument(
+        "--vblocks",
+        dest="vblocks",
+        nargs="*",
+        choices=vowels,
+        default=[],
+        help="Vowels to block. Overrides recommended vowel blocklist.",
+    )
+    parser.add_argument(
+        "--cblocks",
+        dest="cblocks",
+        nargs="*",
+        choices=consonants,
+        default=[],
+        help="Consonants to block. Overrides recommended consonant blocklist.",
+    )
+    parser.add_argument(
+        "--sentences",
+        dest="sentences",
+        action="store_true",
+        default=False,
+        help="Substitute each pronoun into example sentences for testing their use",
+    )
+
+    ARGV = parser.parse_args()
+    CV = ARGV.cv
+    VC = ARGV.vc
+    CVC = ARGV.cvc
+
+    if ARGV.vblocks:
+        vblocklist |= set(ARGV.vblocks)
+    else:
+        vblocklist |= vblocklist_rec
+
+    if ARGV.cblocks:
+        cblocklist |= set(ARGV.cblocks)
+    else:
+        cblocklist |= cblocklist_rec
+
+    if ARGV.no_blocks:
+        vblocklist = set()
+        cblocklist = set()
+
+    if ARGV.guide:
+        print(
+            """
+    Already existing third person pronouns:
+    sg = singular
+    pl = plural
+    gl = genderless
+    ml = male
+    fl = female
+
+               subj    obj     d. pos    i. pos      reflexive
+    1st sg gl: i     / me    / my      / mine      / myself
+    1st pl gl: we    / us    / our     / ours      / ourselves
+    2nd sg gl: you   / you   / your    / yours     / yourself
+    2nd pl gl: y'all / y'all / y'all's / y'all's   / y'allselves
+    3rd sg ml: he    / him   / his     / his       / himself
+    3rd sg fl: she   / her   / hers    / hers      / herself
+    3rd sg gl: they  / them  / theirs  / theirs    / themself,theirself
+    3rd pl gl: they  / them  / theirs  / theirs    / themselves,theirselves
+    3rd sg gl: it    / it    / its     / its       / itself
+
+    Taken consonants: ( front / back )
+    1st: m / n
+    2nd: y / r
+    3rd: h sh th / t m r
+
+    "Taken" vowels: (okay to reuse) (aprx)
+    1st: i ee uh ow
+    2nd: oo oh ah
+    3rd: ee ih schwa ey eh ih
+        """
+        )
+
     main()
