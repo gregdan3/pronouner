@@ -231,7 +231,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--they",
-        "--all",
+        "--cvc",
         dest="cvc",
         action="store_true",
         default=False,
