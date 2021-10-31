@@ -3,6 +3,7 @@
 # but it's funny that all these words exist
 # i'm also not a phononomist or phonologer
 
+import argparse
 import logging
 
 import enchant
